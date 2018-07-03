@@ -1,0 +1,11 @@
+#!/bin/sh
+
+[ $BASE_DIR ] || exit 1
+TOPDIR=$(dirname "${BASE_DIR}")
+SCRNAME=$(readlink -f "$0")
+SCRNAME=${SCRNAME#$TOPDIR/}
+
+. $TOPDIR/scripts/include/log || exit 1
+
+logTitle "Running $SCRNAME ..."
+logTitle "$SCRNAME done!"

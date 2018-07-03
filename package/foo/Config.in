@@ -1,0 +1,4 @@
+config BR2_PACKAGE_FOO
+	bool "foo package"
+	help
+	  a fee package

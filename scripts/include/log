@@ -1,0 +1,20 @@
+
+__log() {
+  local n='\033[00m'
+  local b=$1
+  local t=$2
+  shift 2
+  [ $# -gt 0 ] && {
+        local f=$1; shift
+        printf "$n[$b$n]$t "
+        printf "$f" "$@"
+  }
+  echo
+}
+
+logTitle()    { __log "\033[01;35m>>>>" ""         "$@"; }
+logSubTitle() { __log "\033[01;36m>>"   "\033[37m" "$@"; }
+log()         { __log "\033[01;32m>>"   ""         "$@"; }
+
+err()         { __log "\033[01;31mEE" "" "$@" >&2; }
+die()         { __log "\033[01;31m!!" "" "$@" >&2; exit 1; }

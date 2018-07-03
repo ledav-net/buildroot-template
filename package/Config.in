@@ -1,0 +1,2 @@
+source "../package/foo/Config.in"
+source "../package/bar/Config.in"

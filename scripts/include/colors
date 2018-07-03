@@ -1,0 +1,23 @@
+
+if tty -s <&1
+then
+	NORMAL="\e[0m"
+
+	DBLACK="\e[0;30m"
+	DRED="\e[0;31m"
+	DGREEN="\e[0;32m"
+	DYELLOW="\e[0;33m"
+	DBLUE="\e[0;34m"
+	DMAGENTA="\e[0;35m"
+	DCYAN="\e[0;36m"
+	DWHITE="\e[0;37m"
+
+	LBLACK="\e[1;30m"
+	LRED="\e[1;31m"
+	LGREEN="\e[1;32m"
+	LYELLOW="\e[1;33m"
+	LBLUE="\e[1;34m" 
+	LMAGENTA="\e[1;35m"
+	LCYAN="\e[1;36m"
+	LWHITE="\e[1;37m"
+fi

@@ -1,0 +1,4 @@
+config BR2_PACKAGE_BAR
+	bool "bar package"
+	help
+	  a fee package
