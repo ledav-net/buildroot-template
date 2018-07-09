@@ -1,21 +1,43 @@
 
+if tty -s <&1
+then
+	C_NRM="\033[0m"
+
+	C_DBK="\033[0;30m"
+	C_DRE="\033[0;31m"
+	C_DGR="\033[0;32m"
+	C_DYE="\033[0;33m"
+	C_DBL="\033[0;34m"
+	C_DMA="\033[0;35m"
+	C_DCY="\033[0;36m"
+	C_DWH="\033[0;37m"
+
+	C_LBK="\033[1;30m"
+	C_LRE="\033[1;31m"
+	C_LGR="\033[1;32m"
+	C_LYE="\033[1;33m"
+	C_LBL="\033[1;34m" 
+	C_LMA="\033[1;35m"
+	C_LCY="\033[1;36m"
+	C_LWH="\033[1;37m"
+fi
+
 __log() {
-  local n b t f
-  n='\033[0m'
-  b=$1
-  t=$2
-  shift 2
-  [ $# -gt 0 ] && {
-        f=$1; shift
-        printf "$n[$b$n]$t "
-        printf "$f" "$@"
-  }
-  echo
+	local n b t f
+	b=$1
+	t=$2
+	shift 2
+	[ $# -gt 0 ] && {
+		f=$1; shift
+		printf "${C_NRM}[$b${C_NRM}]$t "
+		printf "$f" "$@"
+	}
+	echo
 }
 
-logTitle()    { __log "\033[01;35m>>>>" ""         "$@"; }
-logSubTitle() { __log "\033[01;36m>>"   "\033[37m" "$@"; }
-log()         { __log "\033[01;32m>>"   ""         "$@"; }
+logTitle()    { __log "${C_LMA}>>>>" ""         "$@"; }
+logSubTitle() { __log "${C_LCY}>>"   "${C_LWH}" "$@"; }
+log()         { __log "${C_LGR}>>"   ""         "$@"; }
 
-err()         { __log "\033[01;31mEE" "" "$@" >&2; }
-die()         { __log "\033[01;31m!!" "" "$@" >&2; exit 1; }
+err()         { __log "${C_LRE}EE" "" "$@" >&2; }
+die()         { __log "${C_LRE}!!" "" "$@" >&2; exit 1; }
