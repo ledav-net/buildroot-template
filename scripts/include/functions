@@ -1,0 +1,22 @@
+
+print_device_table() {
+	local devs format vendor model serial
+	devs="$@"
+	format="%-10s %-10s %-15s %s\n"
+	printf "$format" Device Vendor Model Serial
+	echo "=============================================================================="
+	for dev in ${devs[@]}; do
+		/sbin/udevadm info --query=env --name=$dev | while read line; do
+			case $line in
+			  ID_VENDOR=*) vendor="${line#*=}";;
+			  ID_MODEL=*) model="${line#*=}";;
+			  ID_SERIAL_SHORT=*) serial="${line#*=}";;
+			esac
+		done
+		printf "$format" "$dev" "$vendor" "$model" "$serial"
+	done
+}
+
+confirm() {
+	read -p "Hit ctrl+c to abord or enter to continue..."
+}
