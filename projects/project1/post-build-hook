@@ -1,11 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 
-[ $BASE_DIR ] || exit 1
-TOPDIR=$(dirname "${BASE_DIR}")
+MAINDIR=$(sed -n 's/BR2_DEFCONFIG="\(.*_defconfig\)"/\1/ p' < "$BR2_CONFIG")
+MAINDIR=$(readlink -f "${MAINDIR%/*}/..")
 SCRNAME=$(readlink -f "$0")
-SCRNAME=${SCRNAME#$TOPDIR/}
+SCRNAME=${SCRNAME#$MAINDIR/}
 
-. $TOPDIR/scripts/include/log || exit 1
+. "$MAINDIR"/scripts/include/log || exit 1
 
 logTitle "Running $SCRNAME ..."
+
+# CODE HERE
+
 logTitle "$SCRNAME done!"
+exit 0

@@ -1,11 +1,12 @@
 
 __log() {
-  local n='\033[00m'
-  local b=$1
-  local t=$2
+  local n b t f
+  n='\033[0m'
+  b=$1
+  t=$2
   shift 2
   [ $# -gt 0 ] && {
-        local f=$1; shift
+        f=$1; shift
         printf "$n[$b$n]$t "
         printf "$f" "$@"
   }
