@@ -56,7 +56,7 @@ done
 
 for tool in ${HOSTDEPTOOLS[*]}; do
 	which $tool &> /dev/null || \
-		die "The tool '\033[1;36m$tool\033[0m' is missing and required ! Please install it before continuing ..."
+	  die "The tool '${C_LCY}${tool}${C_NRM}' is missing and required ! Please install it before continuing ..."
 done
 
 clone_if_new() {
