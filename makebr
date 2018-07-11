@@ -8,7 +8,8 @@ BOARD="x86_64"
 SUFFIX="master"
 
 BUILDROOT_REPO="git://git.buildroot.net/buildroot.git"
-BUILDROOT_BRANCH_NAME="master"
+BUILDROOT_BRANCH="master"
+BUILDROOT_TAG="2018.05"
 ###
 
 BASE_DIR="${PWD}"
@@ -63,27 +64,36 @@ clone_if_new() {
 # Clone a repository if it doesn't exist yet
 # $1 = directory name, e.g. buildroot
 # $2 = remote repository, e.g. $BUILDROOT_REPO
-# $3 = branch name, e.g. master
+# $3 = branch name, e.g. $BUILDROOT_BRANCH
+# $4 = optional tag name to stick to, e.g. $BUILDROOT_TAG
+
 	if [ ! -d "$1" ]; then
 		log "Retreiving buildroot from upstream ..."
 
 		if ! git ls-remote --heads "$2" "$3" > /dev/null; then
 			echo
-			echo "Repository '$2' is not accessible !"
+			echo "There was a problem retreiving buildroot..."
 			echo
 			echo "Make sure that:"
-			echo "  1. Your ssh key is registered at gitlab."
-			echo "  2. You have (read) access to this repository."
-			echo "  3. The branch '$3' exists in the repository."
-			echo
+			echo "  1. The repository is the right one: $2"
+			echo "  2. Your ssh key is registered at the remote."
+			echo "  3. You have (read) access to this repository."
+			echo "  4. The branch '$3' exists."
+			[ $4 ] && \
+			echo "  5. The tag '$4' exists."
 			exit 1
 		fi
-		log "git clone --branch $3 $2 $1"
+		log "Cloning branch '$3' from $2 ..."
 		git clone --branch "$3" "$2" "$1" || die "Exit code $?"
+		if [ $4 ]; then
+			log "Checking out tag '$4'"
+			git -C "$1" checkout "$4" 2>&1 | grep "^HEAD" || die "Exit code $?"
+		fi
 	fi
+	return 0
 }
 
-clone_if_new buildroot "$BUILDROOT_REPO" "$BUILDROOT_BRANCH_NAME"
+clone_if_new buildroot "$BUILDROOT_REPO" "$BUILDROOT_BRANCH" "$BUILDROOT_TAG"
 
 if   [ $rebuild -eq 1 ]; then
 	read -p "Sure to cleanup everything ?!! (CTRL-C to abord)"
