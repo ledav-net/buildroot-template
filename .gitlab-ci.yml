@@ -20,4 +20,5 @@ image: buildroot/base:20180318.1724
         - ./makebr --brief world
         - ./makebr --brief legal-info
 
-project1_x86_64: *project
+# Uncomment the following line to activate auto-building on gitlab
+#project1_x86_64: *project
