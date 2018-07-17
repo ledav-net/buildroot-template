@@ -25,14 +25,10 @@ HOSTDEPTOOLS=()
 
 . scripts/include/log || exit 1
 
-if [ ! -f "${CONFIG_DIR}/$DEFCONFIG" ]; then
-	echo "defconfig '$DEFCONFIG' not found !"
-	exit 2
-fi
-
 extra=
 overrides=
 debug=0
+init=0
 rebuild=0
 reinstall=0
 make=normal
@@ -44,7 +40,9 @@ while [ "${1:0:2}" == '--' ]; do
 	 --reinstall)   reinstall=1;;
 	 --debug)	debug=1;;
 	 --brief)	make=brief;;
+	 --init)        init=1;;
 	 *)
+		echo "--init      Just download/update external objects"
 	 	echo "--rebuild   Restart the build from scratch"
 		echo "--reinstall Force the reinstall of target without a full rebuild"
 	 	echo "--debug     Create a debug build"
@@ -94,6 +92,16 @@ clone_if_new() {
 }
 
 clone_if_new buildroot "$BUILDROOT_REPO" "$BUILDROOT_BRANCH" "$BUILDROOT_TAG"
+
+if [ $init -eq 1 ]; then
+	log "Externals downloaded ..."
+	exit 0
+fi
+
+if [ ! -f "${CONFIG_DIR}/$DEFCONFIG" ]; then
+	echo "defconfig '$DEFCONFIG' not found !"
+	exit 2
+fi
 
 if   [ $rebuild -eq 1 ]; then
 	read -p "Sure to cleanup everything ?!! (CTRL-C to abord)"
