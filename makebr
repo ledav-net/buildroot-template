@@ -154,8 +154,9 @@ if [ ! -e "$OUTPUT" ]; then
 	log "Configuring buildroot ..."
 	overrides+=" BR2_EXTERNAL=$EXTERNAL"
 	overrides+=" BR2_DEFCONFIG=$CONFIG_DIR/$DEFCONFIG"
-	overrides+=" BR2_DL_DIR=../dl"
 	$make defconfig $overrides || die "Error code $?"
+	# Patching the config to change the download dir
+	sed -i -e 's/\(^BR2_DL_DIR=\).*/\1"..\/dl"/' "$OUTPUT/.config"
 
 	log "Downloading/checking all the source packages ..."
 	$make source || die "Error code $?"
