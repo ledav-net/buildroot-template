@@ -14,6 +14,6 @@ device=$1
 print_device_table $1
 confirm
 
-dd if="sdcard.img" of="$device" bs=4M status=progress && sync
+dd if="sdcard.img" of="$device" oflag=sync bs=4M status=progress && sync
 
 exit 0
