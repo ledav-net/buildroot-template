@@ -4,7 +4,7 @@
 │       ├── fs-overlay
 │       ├── linux-4.17.config
 │       ├── post-build-hook
-│       └── post-images-hook
+│       └── post-image-hook
 
 Board specific configurations & finetunings. What is there is applied at the
 end as a last step so that you can always activate specific configs for that
@@ -50,7 +50,7 @@ Master place to put your patches for any packages/versions.
 │       ├── fs-overlay
 │       ├── local.mk
 │       ├── post-build-hook
-│       └── post-images-hook
+│       └── post-image-hook
 
 This holds the project specific configurations, scripts & overlays.
 

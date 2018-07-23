@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Included from all projects/*/post-build-hook scripts.
+
+logSubTitle "Executing common tasks ..."
+
+# CODE HERE
+
+logSubTitle "Common tasks done!"
