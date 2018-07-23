@@ -9,7 +9,7 @@ SCRNAME=${SCRNAME#$MAINDIR/}
 
 logTitle "Running $SCRNAME ..."
 
-. "$MAINDIR"/projects-common/post-image-hook || exit $?
+. "$MAINDIR"/projects/common/post-image-hook || exit $?
 
 # CODE HERE
 
