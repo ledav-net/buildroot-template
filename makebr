@@ -31,22 +31,25 @@ debug=0
 init=0
 rebuild=0
 reinstall=0
-make=normal
+build=normal
+make=make
 
 while [ "${1:0:2}" == '--' ]; do
 	case $1 in
 	 --j)           extra+=" BR2_JLEVEL=$2"; shift;;
 	 --rebuild)	rebuild=1;;
-	 --reinstall)   reinstall=1;;
+	 --reinstall)	reinstall=1;;
+	 --low)		make="nice -n 5 -- $make";;
 	 --debug)	debug=1;;
-	 --brief)	make=brief;;
-	 --init)        init=1;;
+	 --brief)	build=brief;;
+	 --init)	init=1;;
 	 *)
 		echo "--init      Just download/update external objects"
 	 	echo "--rebuild   Restart the build from scratch"
 		echo "--reinstall Force the reinstall of target without a full rebuild"
 	 	echo "--debug     Create a debug build"
 	 	echo "--brief     Create a log file and show lesser outputs"
+		echo "--low       Start building with a lower ressources priority"
 		echo "--j <n>     Use max <n> cpus"
 	 	exit;;
 	esac
@@ -117,7 +120,7 @@ brief() {
 
 	start=${SECONDS}
 
-	make -C buildroot "O=$OUTPUT" $extra "${@}" 2>&1 | ( \
+	$make -C buildroot "O=$OUTPUT" $extra "${@}" 2>&1 | ( \
 		while read line; do
 			printf "%(%H:%M:%S)T %s\n" -1 "${line}"
 		done \
@@ -140,7 +143,7 @@ brief() {
 }
 
 normal() {
-	make -C buildroot "O=$OUTPUT" $extra "$@"
+	$make -C buildroot "O=$OUTPUT" $extra "$@"
 	return $?
 }
 
@@ -154,16 +157,16 @@ if [ ! -e "$OUTPUT" ]; then
 	log "Configuring buildroot ..."
 	overrides+=" BR2_EXTERNAL=$EXTERNAL"
 	overrides+=" BR2_DEFCONFIG=$CONFIG_DIR/$DEFCONFIG"
-	$make defconfig $overrides || die "Error code $?"
+	$build defconfig $overrides || die "Error code $?"
 	# Patching the config to change the download dir
 	sed -i -e 's/\(^BR2_DL_DIR=\).*/\1"..\/dl"/' "$OUTPUT/.config"
 
 	log "Downloading/checking all the source packages ..."
-	$make source || die "Error code $?"
+	$build source || die "Error code $?"
 fi
 
 log "Start building $(date)"
-$make "${@}" || die "Error code $?"
+$build "${@}" || die "Error code $?"
 log "Build well done $(date)"
 
 exit 0
