@@ -11,8 +11,13 @@ device=
 device=$1
 [ -s "sdcard.img" ] || die "Cannot find 'sdcard.img' !"
 
-print_device_table $1
+print_device_table $device
 confirm
+
+for mnt in $(grep $device /proc/mounts | cut -f1 -d' '); do
+	log "Auto-unmounting $mnt ..."
+	umount $mnt || die "Cannot unmount $mnt !"
+done
 
 dd if="sdcard.img" of="$device" oflag=sync bs=4M status=progress && sync
 

@@ -35,9 +35,9 @@ __log() {
 	echo
 }
 
-logTitle()    { __log "${C_LMA}>>>>" ""         "$@"; }
-logSubTitle() { __log "${C_LCY}>>"   "${C_LWH}" "$@"; }
-log()         { __log "${C_LGR}>>"   ""         "$@"; }
+logTitle()    { __log "${C_LMA}>>>>" "" "$@"; }
+logSubTitle() { __log "${C_LCY}>>"   "" "$@"; }
+log()         { __log "${C_LGR}>>"   "" "$@"; }
 
 err()         { __log "${C_LRE}EE" "" "$@" >&2; }
 die()         { __log "${C_LRE}!!" "" "$@" >&2; exit 1; }
