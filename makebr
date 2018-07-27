@@ -18,7 +18,7 @@ BUILD=${PROJECT}_${BOARD}
 DEFCONFIG="${PROJECT}_${BOARD}_defconfig"
 EXTERNAL="../projects/${PROJECT}"
 OUTPUT="${BASE_DIR}/o-${BUILD}"
-
+ 
 # Space separated list of tools required for the build
 # (Basically the non common tools used in all *-hook scripts)
 HOSTDEPTOOLS=()
@@ -106,7 +106,7 @@ fi
 if   [ $rebuild -eq 1 ]; then
 	read -p "Sure to cleanup everything ?!! (CTRL-C to abord)"
 	[ -e "$OUTPUT/debug_build" ] && mv "$OUTPUT/debug_build" /tmp/~debug_build.$$
-	rm -rf "$OUTPUT" "$OUTPUT.log"
+	rm -rf "$OUTPUT" "$BUILD.log"
 elif [ $reinstall -eq 1 ]; then
 	find $OUTPUT/build -regex '.*\.stamp_.*\(built\|installed\)' -delete
 	rm -rf $OUTPUT/{final,staging} $OUTPUT/{host,images,target}/*
