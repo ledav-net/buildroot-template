@@ -21,7 +21,7 @@ OUTPUT="${BASE_DIR}/o-${BUILD}"
  
 # Space separated list of tools required for the build
 # (Basically the non common tools used in all *-hook scripts)
-HOSTDEPTOOLS=()
+HOSTDEPTOOLS=(git)
 
 . scripts/include/log || exit 1
 
