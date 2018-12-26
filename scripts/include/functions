@@ -4,7 +4,7 @@ print_device_table() {
 	devs="$@"
 	format="%-10s %-10s %-15s %s\n"
 	printf "$format" Device Vendor Model Serial
-	echo "=============================================================================="
+	echo "================================================================================"
 	for dev in ${devs[@]}; do
 		/sbin/udevadm info --query=env --name=$dev | while read line; do
 			case $line in
