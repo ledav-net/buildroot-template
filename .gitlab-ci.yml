@@ -17,8 +17,6 @@ image: buildroot/base:20180318.1724
             - o-${CI_JOB_NAME}/build/build-time.log
             - o-${CI_JOB_NAME}/build/packages-file-list.txt
     script:
-        - ./makebr --brief world
-        - ./makebr --brief legal-info
+        - ./makebr --brief
 
-# Uncomment the following line to activate auto-building on gitlab
 project1_x86_64: *project
