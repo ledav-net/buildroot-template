@@ -1,6 +1,6 @@
 
-if tty -s <&1
-then
+#if tty -s <&1
+#then
 	C_NRM="\033[0m"
 
 	C_DBK="\033[0;30m"
@@ -20,7 +20,7 @@ then
 	C_LMA="\033[1;35m"
 	C_LCY="\033[1;36m"
 	C_LWH="\033[1;37m"
-fi
+#fi
 
 __log() {
 	local n b t f
@@ -39,6 +39,7 @@ logTitle()    { __log "${C_LMA}>>>>" ""         "$@"; }
 logSubTitle() { __log "${C_LCY}>>"   "${C_LWH}" "$@"; }
 log()         { __log "${C_LGR}>>"   ""         "$@"; }
 
-err()         { __log "${C_LRE}EE" "" "$@" >&2; }
+warn()        { __log "${C_DRE}w!" "" "$@" >&2; }
+err()         { __log "${C_LRE}E!" "" "$@" >&2; }
 die()         { __log "${C_LRE}!!" "" "$@" >&2; exit 1; }
 dieWith()     { local s=$1; shift; __log "${C_LRE}!!" "" "$@" >&2; exit $s; }
