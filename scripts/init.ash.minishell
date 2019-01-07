@@ -1,0 +1,21 @@
+#!/bin/busybox ash
+
+# init.ash.minisell script
+
+. include/log
+
+log "Installing busybox's applets as symlinks"
+/bin/busybox --install -s
+
+log "Mounting system dirs ..."
+mount -t sysfs    -o nodev,noexec,nosuid           sysfs    /sys
+mount -t proc     -o nodev,noexec,nosuid           proc     /proc
+mount -t devtmpfs -o mode=0755                     devtmpfs /dev
+mkdir /dev/pts
+mount -t devpts   -o noexec,nosuid,gid=5,mode=0620 devpts   /dev/pts
+
+log "Starting klogd ..."
+/sbin/klogd
+
+log "Droping to the shell ..."
+exec /bin/sh < /dev/console > /dev/console 2>&1
