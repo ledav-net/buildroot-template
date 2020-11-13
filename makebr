@@ -9,7 +9,7 @@ SUFFIX="master"
 
 BUILDROOT_REPO="git://git.buildroot.net/buildroot.git"
 BUILDROOT_BRANCH="master"
-BUILDROOT_TAG="2018.11.1"
+BUILDROOT_TAG="2020.08"
 ###
 
 BASE_DIR="${PWD}"
