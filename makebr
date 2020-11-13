@@ -86,10 +86,10 @@ clone_if_new() {
 		fi
 		log "Cloning branch '$3' from $2 ..."
 		git clone --branch "$3" "$2" "$1" || die "Exit code $?"
-		if [ $4 ]; then
-			log "Checking out tag '$4'"
-			git -C "$1" checkout "$4" 2>&1 | grep "^HEAD" || die "Exit code $?"
-		fi
+	fi
+	if [ $4 ]; then
+		log "Checking out tag '$4'"
+		git -C "$1" checkout "$4" 2>&1 | grep "^HEAD" || die "Exit code $?"
 	fi
 	return 0
 }
