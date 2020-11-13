@@ -69,11 +69,11 @@ clone_if_new() {
 # $4 = optional tag name to stick to, e.g. $BUILDROOT_TAG
 
 	if [ ! -d "$1" ]; then
-		log "Retreiving buildroot from upstream ..."
+		log "Retrieving buildroot from upstream ..."
 
 		if ! git ls-remote --heads "$2" "$3" > /dev/null; then
 			echo
-			echo "There was a problem retreiving buildroot..."
+			echo "There was a problem retrieving buildroot..."
 			echo
 			echo "Make sure that:"
 			echo "  1. The repository is the right one: $2"
