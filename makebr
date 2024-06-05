@@ -33,20 +33,27 @@ make=make
 
 while [ "${1:0:2}" == '--' ]; do
 	case $1 in
+	 --)		shift; break;;
 	 --j)           extra+=" BR2_JLEVEL=$2"; shift;;
 	 --reconfigure)	configure=1;;
 	 --reinstall)	reinstall=1;;
 	 --low)		make="nice -n 5 -- $make";;
 	 --brief)	build=brief;;
 	 --init)	init=1;;
-	 *)
-		echo "--init        Just download/update external objects"
-		echo "--reconfigure Init and (re)configure buildroot (full rebuild of the project !)"
-		echo "--reinstall   Force the reinstall of target without a full rebuild"
-		echo "--brief       Create a log file and show lesser outputs"
-		echo "--low         Start building with a lower ressources priority"
-		echo "--j <n>       Use max <n> cpus"
-		exit;;
+	 *)		cat <<-EOT
+			Usage: makebr [options] [--] [buildroot command] [buildroot options]"
+
+			Options:
+			 --help        This help screen
+			 --init        Just download/update external objects
+			 --reconfigure Init and (re)configure buildroot (full rebuild of the project !)
+			 --reinstall   Force the reinstall of target without a full rebuild
+			 --brief       Create a log file and show lesser outputs
+			 --low         Start building with a lower ressources priority
+			 --j <n>       Use max <n> cpus
+
+			EOT
+			exit;;
 	esac
 	shift
 done
