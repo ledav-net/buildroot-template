@@ -88,7 +88,7 @@ clone_if_new() {
 	fi
 	local checkout=${4:-$3}
 	log "Checking out '$checkout'"
-	git -C "$1" checkout "$checkout" 2>&1 | grep "^\(HEAD\|Your branch is\)" || die "Exit code $?"
+	git -C "$1" checkout "$checkout" 2>&1 | grep "^\(HEAD\|Your branch is\)" || dierc $? "Exit code $?"
 	return 0
 }
 

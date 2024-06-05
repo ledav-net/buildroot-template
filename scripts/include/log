@@ -45,4 +45,4 @@ log()         { __log "${C_LGR}>>"   ""         "$@"; }
 warn()        { __log "${C_DRE}w!" "" "$@" >&2; }
 err()         { __log "${C_LRE}E!" "" "$@" >&2; }
 die()         { __log "${C_LRE}!!" "" "$@" >&2; exit 1; }
-dieWith()     { local s=$1; shift; __log "${C_LRE}!!" "" "$@" >&2; exit $s; }
+dierc()       { local s=$1; shift; __log "${C_LRE}!!" "" "$@" >&2; exit $s; }
