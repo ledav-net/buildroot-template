@@ -11,13 +11,15 @@ BUILDROOT_BRANCH="master"
 BUILDROOT_TAG=""
 ###
 
-BASE_DIR="${PWD}"
+BASE_DIR=$(readlink -f "$0")
+BASE_DIR=${BASE_DIR%/*}
 CONFIG_DIR="${BASE_DIR}/configs"
+PROJECT=$(sed -n 's/^name: \(.*\)/\1/p' < "$BASE_DIR/project/external.desc")
 BUILD=${BOARD}
 DEFCONFIG="${BOARD}_defconfig"
 EXTERNAL="../project"
 OUTPUT="${BASE_DIR}/o-${BUILD}"
- 
+
 # Space separated list of tools required for the build
 # (Basically the non common tools used in all the scripts)
 HOSTDEPTOOLS=(git make)
@@ -26,16 +28,13 @@ HOSTDEPTOOLS=(git make)
 
 extra=
 overrides=
-debug=0
-init=0
-rebuild=0
-reinstall=0
 build=normal
 make=make
 
 while [ "${1:0:2}" == '--' ]; do
 	case $1 in
 	 --j)           extra+=" BR2_JLEVEL=$2"; shift;;
+	 --configure)	configure=1;;
 	 --rebuild)	rebuild=1;;
 	 --reinstall)	reinstall=1;;
 	 --low)		make="nice -n 5 -- $make";;
@@ -44,6 +43,7 @@ while [ "${1:0:2}" == '--' ]; do
 	 --init)	init=1;;
 	 *)
 		echo "--init      Just download/update external objects"
+		echo "--configure Just init and configure buildroot"
 	 	echo "--rebuild   Restart the build from scratch"
 		echo "--reinstall Force the reinstall of target without a full rebuild"
 	 	echo "--debug     Create a debug build"
@@ -56,16 +56,15 @@ while [ "${1:0:2}" == '--' ]; do
 done
 
 for tool in ${HOSTDEPTOOLS[*]}; do
-	which $tool &> /dev/null || \
+	command -v $tool &>/dev/null || \
 	  die "The tool '${C_LCY}${tool}${C_NRM}' is missing and required ! Please install it before continuing ..."
 done
 
-clone_if_new() {
-# Clone a repository if it doesn't exist yet
-# $1 = directory name, e.g. buildroot
-# $2 = remote repository, e.g. $BUILDROOT_REPO
-# $3 = branch name, e.g. $BUILDROOT_BRANCH
-# $4 = optional tag name to stick to, e.g. $BUILDROOT_TAG
+init_br() {
+	# $1 = directory name, e.g. buildroot
+	# $2 = remote repository, e.g. $BUILDROOT_REPO
+	# $3 = branch name, e.g. $BUILDROOT_BRANCH
+	# $4 = optional tag name to stick to, e.g. $BUILDROOT_TAG
 
 	if [ ! -d "$1" ]; then
 		log "Retrieving buildroot from upstream ..."
@@ -89,26 +88,22 @@ clone_if_new() {
 	local checkout=${4:-$3}
 	log "Checking out '$checkout'"
 	git -C "$1" checkout "$checkout" 2>&1 | grep "^\(HEAD\|Your branch is\)" || dierc $? "Exit code $?"
-	return 0
 }
 
-clone_if_new buildroot "$BUILDROOT_REPO" "$BUILDROOT_BRANCH" "$BUILDROOT_TAG"
+init_br buildroot "$BUILDROOT_REPO" "$BUILDROOT_BRANCH" "$BUILDROOT_TAG"
 
-if [ $init -eq 1 ]; then
-	log "Externals downloaded ..."
+if [ $init ]; then
+	log "init done!"
 	exit 0
 fi
 
-if [ ! -f "${CONFIG_DIR}/$DEFCONFIG" ]; then
-	echo "defconfig '$DEFCONFIG' not found !"
-	exit 2
-fi
+[ -f "${CONFIG_DIR}/$DEFCONFIG" ] || dierc 2 "defconfig '$DEFCONFIG' not found !"
 
-if   [ $rebuild -eq 1 ]; then
+if   [ $rebuild ]; then
 	read -p "Sure to cleanup everything ?!! (CTRL-C to abord)"
 	[ -e "$OUTPUT/debug_build" ] && mv "$OUTPUT/debug_build" /tmp/~debug_build.$$
-	rm -rf "$OUTPUT" "$BUILD.log"
-elif [ $reinstall -eq 1 ]; then
+	rm -rf "$OUTPUT"
+elif [ $reinstall ]; then
 	find $OUTPUT/build -regex '.*\.stamp_.*\(built\|installed\)' -delete
 	rm -rf $OUTPUT/{final,staging} $OUTPUT/{host,images,target}/*
 fi
@@ -118,36 +113,35 @@ brief() {
 
 	start=${SECONDS}
 
-	$make -C buildroot "O=$OUTPUT" $extra "${@}" 2>&1 | ( \
+	$make -C buildroot "O=$OUTPUT" $extra "${@}" 2>&1 | {
 		while read line; do
 			printf "%(%H:%M:%S)T %s\n" -1 "${line}"
 		done \
-		|tee -a ${BUILD}.log \
-		|grep --line-buffered --colour=never -E '>>>'
-	)
+		| tee -a "$OUTPUT/"${BUILD}.log \
+		| grep --line-buffered --colour=never -E '>>>'
+	}
 	ret=${PIPESTATUS[0]}
 
 	d=$((SECONDS-start))
 	printf "Done in "
 	h=$((d/3600))
 	d=$((d%3600))
-	[ ${h} -eq 0 ] || { printf "%dh " ${h}; mf="02"; }
+	[ $h -ne 0 ] && { printf "%dh " $h; mf="02"; }
 	m=$((d/60))
 	d=$((d%60))
-	[ ${m} -eq 0 ] || { printf "%${mf}dmin " ${m}; sf="02"; }
-	printf "%${sf}ds\n" ${d}
-	
-	return ${ret}
+	[ $m -ne 0 ] && { printf "%${mf}dmin " $m; sf="02"; }
+	printf "%${sf}ds\n" $d
+
+	return $ret
 }
 
 normal() {
 	$make -C buildroot "O=$OUTPUT" $extra "$@"
-	return $?
 }
 
 if [ ! -e "$OUTPUT" ]; then
 	mv /tmp/~debug_build.$$ "$OUTPUT/debug_build" 2>/dev/null
-	if [ $debug -eq 1 ]; then
+	if [ $debug ]; then
 		[ -e "$OUTPUT/debug_build" ] || cp -a configs/debug_build "$OUTPUT"
 		${EDITOR:-vi} "$OUTPUT/debug_build"
 		touch "$OUTPUT/debug_build"
@@ -155,16 +149,22 @@ if [ ! -e "$OUTPUT" ]; then
 	log "Configuring buildroot ..."
 	overrides+=" BR2_EXTERNAL=$EXTERNAL"
 	overrides+=" BR2_DEFCONFIG=$CONFIG_DIR/$DEFCONFIG"
-	$build defconfig $overrides || die "Error code $?"
-	# Patching the config to change the download dir
-	sed -i -e 's/\(^BR2_DL_DIR=\).*/\1"..\/dl"/' "$OUTPUT/.config"
+	$build defconfig $overrides || dierc $? "Error code $?"
+	# Patching the config
+	sed -i "$OUTPUT/.config" \
+	  -e 's|^\(BR2_DL_DIR=\).*|\1"../dl"|' \
+	  -e "/^BR2_ROOTFS_POST_BUILD_SCRIPT=/d; $ aBR2_ROOTFS_POST_BUILD_SCRIPT=\"\$(BR2_EXTERNAL_${PROJECT}_PATH)/post-build-hook ../boards/${BOARD}/post-build-hook\"" \
+	  -e "/^BR2_ROOTFS_POST_IMAGE_SCRIPT=/d; $ aBR2_ROOTFS_POST_IMAGE_SCRIPT=\"\$(BR2_EXTERNAL_${PROJECT}_PATH)/post-image-hook ../boards/${BOARD}/post-image-hook\"" \
 
 	log "Downloading/checking all the source packages ..."
-	$build source || die "Error code $?"
+	$build source || dierc $? "Error code $?"
+fi
+
+if [ $configure ]; then
+	log "Configure done!"
+	exit 0
 fi
 
 log "Start building $(date)"
-$build "${@}" || die "Error code $?"
+$build "${@}" || dierc $? "Error code $?"
 log "Build well done $(date)"
-
-exit 0
