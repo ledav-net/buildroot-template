@@ -1,9 +1,0 @@
-#!/bin/bash
-
-# Included from all projects/*/post-image-hook scripts.
-
-logSubTitle "Executing common tasks ..."
-
-# CODE HERE
-
-logSubTitle "Common tasks done!"
