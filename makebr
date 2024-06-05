@@ -38,7 +38,6 @@ while [ "${1:0:2}" == '--' ]; do
 	 --rebuild)	rebuild=1;;
 	 --reinstall)	reinstall=1;;
 	 --low)		make="nice -n 5 -- $make";;
-	 --debug)	debug=1;;
 	 --brief)	build=brief;;
 	 --init)	init=1;;
 	 *)
@@ -46,7 +45,6 @@ while [ "${1:0:2}" == '--' ]; do
 		echo "--configure Just init and configure buildroot"
 	 	echo "--rebuild   Restart the build from scratch"
 		echo "--reinstall Force the reinstall of target without a full rebuild"
-	 	echo "--debug     Create a debug build"
 	 	echo "--brief     Create a log file and show lesser outputs"
 		echo "--low       Start building with a lower ressources priority"
 		echo "--j <n>     Use max <n> cpus"
@@ -101,7 +99,6 @@ fi
 
 if   [ $rebuild ]; then
 	read -p "Sure to cleanup everything ?!! (CTRL-C to abord)"
-	[ -e "$OUTPUT/debug_build" ] && mv "$OUTPUT/debug_build" /tmp/~debug_build.$$
 	t="$OUTPUT.$$"
 	mv "$OUTPUT" "$t" 2>/dev/null && { rm -rf "$t" & }
 elif [ $reinstall ]; then
@@ -141,12 +138,6 @@ normal() {
 }
 
 if [ ! -e "$OUTPUT" ]; then
-	mv /tmp/~debug_build.$$ "$OUTPUT/debug_build" 2>/dev/null
-	if [ $debug ]; then
-		[ -e "$OUTPUT/debug_build" ] || cp -a configs/debug_build "$OUTPUT"
-		${EDITOR:-vi} "$OUTPUT/debug_build"
-		touch "$OUTPUT/debug_build"
-	fi
 	log "Configuring buildroot ..."
 	overrides+=" BR2_EXTERNAL=$EXTERNAL"
 	overrides+=" BR2_DEFCONFIG=$CONFIG_DIR/$DEFCONFIG"
