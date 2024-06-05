@@ -102,7 +102,8 @@ fi
 if   [ $rebuild ]; then
 	read -p "Sure to cleanup everything ?!! (CTRL-C to abord)"
 	[ -e "$OUTPUT/debug_build" ] && mv "$OUTPUT/debug_build" /tmp/~debug_build.$$
-	rm -rf "$OUTPUT"
+	t="$OUTPUT.$$"
+	mv "$OUTPUT" "$t" 2>/dev/null && { rm -rf "$t" & }
 elif [ $reinstall ]; then
 	find $OUTPUT/build -regex '.*\.stamp_.*\(built\|installed\)' -delete
 	rm -rf $OUTPUT/{final,staging} $OUTPUT/{host,images,target}/*
@@ -117,7 +118,7 @@ brief() {
 		while read line; do
 			printf "%(%H:%M:%S)T %s\n" -1 "${line}"
 		done \
-		| tee -a "$OUTPUT/"${BUILD}.log \
+		| tee -a "$OUTPUT/build.log" \
 		| grep --line-buffered --colour=never -E '>>>'
 	}
 	ret=${PIPESTATUS[0]}
