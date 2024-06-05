@@ -1,6 +1,8 @@
 
 #if tty -s <&1
 #then
+	shopt -s xpg_echo
+
 	C_NRM="\033[0m"
 
 	C_DBK="\033[0;30m"
@@ -20,6 +22,7 @@
 	C_LMA="\033[1;35m"
 	C_LCY="\033[1;36m"
 	C_LWH="\033[1;37m"
+
 #fi
 
 __log() {
@@ -32,7 +35,7 @@ __log() {
 		printf "${C_NRM}[$b${C_NRM}]$t "
 		printf "$f" "$@"
 	}
-	echo -e ${C_NRM}
+	echo ${C_NRM}
 }
 
 logTitle()    { __log "${C_LMA}>>>>" ""         "$@"; }
