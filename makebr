@@ -34,21 +34,19 @@ make=make
 while [ "${1:0:2}" == '--' ]; do
 	case $1 in
 	 --j)           extra+=" BR2_JLEVEL=$2"; shift;;
-	 --configure)	configure=1;;
-	 --rebuild)	rebuild=1;;
+	 --reconfigure)	configure=1;;
 	 --reinstall)	reinstall=1;;
 	 --low)		make="nice -n 5 -- $make";;
 	 --brief)	build=brief;;
 	 --init)	init=1;;
 	 *)
-		echo "--init      Just download/update external objects"
-		echo "--configure Just init and configure buildroot"
-	 	echo "--rebuild   Restart the build from scratch"
-		echo "--reinstall Force the reinstall of target without a full rebuild"
-	 	echo "--brief     Create a log file and show lesser outputs"
-		echo "--low       Start building with a lower ressources priority"
-		echo "--j <n>     Use max <n> cpus"
-	 	exit;;
+		echo "--init        Just download/update external objects"
+		echo "--reconfigure Init and (re)configure buildroot (full rebuild of the project !)"
+		echo "--reinstall   Force the reinstall of target without a full rebuild"
+		echo "--brief       Create a log file and show lesser outputs"
+		echo "--low         Start building with a lower ressources priority"
+		echo "--j <n>       Use max <n> cpus"
+		exit;;
 	esac
 	shift
 done
@@ -97,8 +95,8 @@ fi
 
 [ -f "${CONFIG_DIR}/$DEFCONFIG" ] || dierc 2 "defconfig '$DEFCONFIG' not found !"
 
-if   [ $rebuild ]; then
-	read -p "Sure to cleanup everything ?!! (CTRL-C to abord)"
+if   [ $configure ] && [ -e "$OUTPUT" ]; then
+	read -p "Sure to reconfigure everything ? (the actual build directory will be removed !) [hit CTRL-C to abord]"
 	t="$OUTPUT.$$"
 	mv "$OUTPUT" "$t" 2>/dev/null && { rm -rf "$t" & }
 elif [ $reinstall ]; then
