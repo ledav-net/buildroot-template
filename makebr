@@ -83,13 +83,12 @@ clone_if_new() {
 			echo "  5. The tag '$4' exists."
 			exit 1
 		fi
-		log "Cloning branch '$3' from $2 ..."
-		git clone --branch "$3" "$2" "$1" || die "Exit code $?"
+		log "Cloning buildroot from $2 ..."
+		git clone "$2" "$1" || die "Exit code $?"
 	fi
-	if [ $4 ]; then
-		log "Checking out tag '$4'"
-		git -C "$1" checkout "$4" 2>&1 | grep "^HEAD" || die "Exit code $?"
-	fi
+	local checkout=${4:-$3}
+	log "Checking out '$checkout'"
+	git -C "$1" checkout "$checkout" 2>&1 | grep "^\(HEAD\|Your branch is\)" || die "Exit code $?"
 	return 0
 }
 
