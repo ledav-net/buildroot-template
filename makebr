@@ -2,10 +2,11 @@
 # Made by David De Grave, 2017
 # david.degrave@mind.be
 
-# CONFIG
+# Default board to build
 BOARD="x86_64"
 SUFFIX="master"
 
+# Buildroot version, branch and/or tag to use
 BUILDROOT_REPO="git://git.buildroot.net/buildroot.git"
 BUILDROOT_BRANCH="master"
 BUILDROOT_TAG=""
@@ -35,6 +36,7 @@ while [ "${1:0:2}" == '--' ]; do
 	case $1 in
 	 --)		shift; break;;
 	 --j)           extra+=" BR2_JLEVEL=$2"; shift;;
+	 --board)       BOARD=$2; shift;;
 	 --reconfigure)	configure=1;;
 	 --reinstall)	reinstall=1;;
 	 --low)		make="nice -n 5 -- $make";;
@@ -45,6 +47,7 @@ while [ "${1:0:2}" == '--' ]; do
 
 			Options:
 			 --help        This help screen
+			 --board       Board to build
 			 --init        Just download/update external objects
 			 --reconfigure Init and (re)configure buildroot (full rebuild of the project !)
 			 --reinstall   Force the reinstall of target without a full rebuild
@@ -62,6 +65,8 @@ for tool in ${HOSTDEPTOOLS[*]}; do
 	command -v $tool &>/dev/null || \
 	  die "The tool '${C_LCY}${tool}${C_NRM}' is missing and required ! Please install it before continuing ..."
 done
+
+log "Board: $C_LCY$BOARD$C_NRM"
 
 init_br() {
 	# $1 = directory name, e.g. buildroot
