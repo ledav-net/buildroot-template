@@ -96,22 +96,6 @@ init_br() {
 	git -C "$1" checkout "$checkout" 2>&1 | grep "^\(HEAD\|Your branch is\)" || dierc $? "Exit code $?"
 }
 
-init_br buildroot "$BUILDROOT_REPO" "$BUILDROOT_BRANCH" "$BUILDROOT_TAG"
-
-if [ $init ]; then
-	log "init done!"
-	exit 0
-fi
-
-if   [ $configure ] && [ -e "$OUTPUT" ]; then
-	read -p "Sure to reconfigure everything ? (the actual build directory will be removed !) [hit CTRL-C to abord]"
-	t="$OUTPUT.$$"
-	mv "$OUTPUT" "$t" 2>/dev/null && { rm -rf "$t" & }
-elif [ $reinstall ]; then
-	find $OUTPUT/build -regex '.*\.stamp_.*\(built\|installed\)' -delete
-	rm -rf $OUTPUT/{final,staging} $OUTPUT/{host,images,target}/*
-fi
-
 brief() {
 	local ret start d h m mf sf line
 
@@ -142,6 +126,34 @@ brief() {
 normal() {
 	$make -C buildroot "O=$OUTPUT" $extra "$@"
 }
+
+init_br buildroot "$BUILDROOT_REPO" "$BUILDROOT_BRANCH" "$BUILDROOT_TAG"
+
+if [ ! -f "${CONFIG_DIR}/$DEFCONFIG" ]; then
+	if [ $init ] && [ -f buildroot/configs/$DEFCONFIG ]; then
+		warn "configs/$DEFCONFIG not found ! Copying from buildroot..."
+		mkdir -p boards/$BOARD/fs-overlay
+		cp -v buildroot/configs/$DEFCONFIG configs/
+		cp -v scripts/templates/board-post-build-hook boards/$BOARD/post-build-hook
+		cp -v scripts/templates/board-post-image-hook boards/$BOARD/post-image-hook
+	else
+		die "defconfig '$DEFCONFIG' not found !"
+	fi
+fi
+
+if [ $init ]; then
+	log "init done!"
+	exit 0
+fi
+
+if   [ $configure ] && [ -e "$OUTPUT" ]; then
+	read -p "Sure to reconfigure everything ? (the actual build directory will be removed !) [hit CTRL-C to abord]"
+	t="$OUTPUT.$$"
+	mv "$OUTPUT" "$t" 2>/dev/null && { rm -rf "$t" & }
+elif [ $reinstall ]; then
+	find $OUTPUT/build -regex '.*\.stamp_.*\(built\|installed\)' -delete
+	rm -rf $OUTPUT/{final,staging} $OUTPUT/{host,images,target}/*
+fi
 
 if [ ! -e "$OUTPUT" ]; then
 	log "Configuring buildroot ..."
