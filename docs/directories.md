@@ -1,58 +1,62 @@
     .
-    ├── board
+    ├── makebr
+
+Master script.  Please double check the top of the `makebr` source for
+possible finetunings...
+
+
+    ├── boards
     │   └── x86_64
     │       ├── fs-overlay
     │       ├── linux-4.17.config
     │       ├── post-build-hook
     │       └── post-image-hook
 
-Board specific configurations & finetunings.  What is there is applied at
-the end as a last step so that you can always activate specific configs for
-that particular hardware like kernel modules, etc.
+Board specific configurations & finetunings.  What is there is required for
+that specific hardware architechture like kernel config, modules, firmwares,
+etc...
+
+    ├── buildroot
+
+The buildroot project cloned at init time. The idea is to never do direct
+changes in there to ease the further updates process.
 
     ├── configs
-    │   ├── debug_build
-    │   └── project1_x86_64_defconfig
+    │   └── x86_64_defconfig
 
-Holds the buildroot project and a debug file where you can put specific
-defines that could be later used in the all the scripts/hooks to finetune
-your build for debugging.
+Holds the buildroot configurations of the different boards for your project.
 
-    ├── makebr
+    ├── o-x86_64
 
-Master script.  Better is to copy it to the name of a project.  Like for
-example makebr-project1 and setup that script for that specific project. 
-Please double check the top of the maklebr source for finetunings...
+The output directory for the board where everything is done by buildroot.
 
-    ├── package
-    │   ├── bar
-    │   │   ├── bar.mk
-    │   │   └── Config.in
-    │   ├── Config.in
-    │   └── foo
-    │       ├── Config.in
-    │       └── foo.mk
+    ├── project
+    │   └── packages
+    │       ├── bar
+    │       │   ├── bar.mk
+    │       │   └── Config.in
+    │       ├── Config.in
+    │       └── foo
+    │           ├── Config.in
+    │           └── foo.mk
 
-Holds all the custom packages.  These will be accessible from "makebr
-menuconfig" in the submenu "External options"
+Holds all the custom packages.  These will be accessible from `makebr
+menuconfig` in the submenu "External options".  If a buildroot package need
+to be finetuned/fixed, you can copy it there and make your changes. You can
+then upstream it later if you want.
 
-    ├── patches
-    │   └── linux
+    ├── project
+    │   ├── Config.in -> packages/Config.in
+    │   ├── external.desc
+    │   ├── external.mk
+    │   ├── fs-overlay
+    │   ├── local.mk
+    │   ├── post-build-hook
+    │   └── post-image-hook
 
-Master place to put your patches for any packages/versions.
-
-    ├── projects
-    │   └── project1
-    │       ├── board
-    │       ├── Config.in -> ../../package/Config.in
-    │       ├── external.desc
-    │       ├── external.mk
-    │       ├── fs-overlay
-    │       ├── local.mk
-    │       ├── post-build-hook
-    │       └── post-image-hook
-
-This holds the project specific configurations, scripts & overlays.
+This holds the project specific configurations, scripts & file-system
+overlay. Everything here should focus only on the project itself. What is
+hardware dependant should go in `/boards/<board>`
 
     └── scripts
         ├── include
@@ -61,4 +65,4 @@ This holds the project specific configurations, scripts & overlays.
         └── mkinitramfs.sh
 
 Generic scripts to generate the initramfs or includes or whatever that could
-be useful from a generic point of view.
+be useful for your project from a generic point of view.
