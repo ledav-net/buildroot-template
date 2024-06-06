@@ -4,22 +4,12 @@
 
 # Default board to build
 BOARD="x86_64"
-SUFFIX="master"
 
 # Buildroot version, branch and/or tag to use
 BUILDROOT_REPO="git://git.buildroot.net/buildroot.git"
 BUILDROOT_BRANCH="master"
 BUILDROOT_TAG=""
 ###
-
-BASE_DIR=$(readlink -f "$0")
-BASE_DIR=${BASE_DIR%/*}
-CONFIG_DIR="${BASE_DIR}/configs"
-PROJECT=$(sed -n 's/^name: \(.*\)/\1/p' < "$BASE_DIR/project/external.desc")
-BUILD=${BOARD}
-DEFCONFIG="${BOARD}_defconfig"
-EXTERNAL="../project"
-OUTPUT="${BASE_DIR}/o-${BUILD}"
 
 # Space separated list of tools required for the build
 # (Basically the non common tools used in all the scripts)
@@ -60,6 +50,14 @@ while [ "${1:0:2}" == '--' ]; do
 	esac
 	shift
 done
+
+BASE_DIR=$(readlink -f "$0")
+BASE_DIR=${BASE_DIR%/*}
+CONFIG_DIR="$BASE_DIR/configs"
+PROJECT_DIR="$BASE_DIR/project"
+PROJECT=$(sed -n 's/^name: \(.*\)/\1/p' < "$PROJECT_DIR/external.desc")
+DEFCONFIG="${BOARD}_defconfig"
+OUTPUT="$BASE_DIR/o-$BOARD"
 
 for tool in ${HOSTDEPTOOLS[*]}; do
 	command -v $tool &>/dev/null || \
@@ -105,8 +103,6 @@ if [ $init ]; then
 	exit 0
 fi
 
-[ -f "${CONFIG_DIR}/$DEFCONFIG" ] || dierc 2 "defconfig '$DEFCONFIG' not found !"
-
 if   [ $configure ] && [ -e "$OUTPUT" ]; then
 	read -p "Sure to reconfigure everything ? (the actual build directory will be removed !) [hit CTRL-C to abord]"
 	t="$OUTPUT.$$"
@@ -151,7 +147,7 @@ if [ ! -e "$OUTPUT" ]; then
 	log "Configuring buildroot ..."
 
 	mkdir -p "$OUTPUT"
-	overrides+=" BR2_EXTERNAL=$EXTERNAL"
+	overrides+=" BR2_EXTERNAL=$PROJECT_DIR"
 	overrides+=" BR2_DEFCONFIG=$CONFIG_DIR/$DEFCONFIG"
 	$build defconfig $overrides || dierc $? "Error code $?"
 
