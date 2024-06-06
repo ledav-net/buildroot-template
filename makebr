@@ -149,9 +149,12 @@ normal() {
 
 if [ ! -e "$OUTPUT" ]; then
 	log "Configuring buildroot ..."
+
+	mkdir -p "$OUTPUT"
 	overrides+=" BR2_EXTERNAL=$EXTERNAL"
 	overrides+=" BR2_DEFCONFIG=$CONFIG_DIR/$DEFCONFIG"
 	$build defconfig $overrides || dierc $? "Error code $?"
+
 	# Patching the config
 	mv -f "$OUTPUT/.config" "$OUTPUT/.config.old"
 	awk < "$OUTPUT/.config.old" > "$OUTPUT/.config" -f <(cat <<-EOT
