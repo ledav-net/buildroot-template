@@ -129,7 +129,7 @@ normal() {
 
 init_br buildroot "$BUILDROOT_REPO" "$BUILDROOT_BRANCH" "$BUILDROOT_TAG"
 
-if [ ! -f "${CONFIG_DIR}/$DEFCONFIG" ]; then
+if [ ! -f "$CONFIG_DIR/$DEFCONFIG" ]; then
 	if [ $init ] && [ -f buildroot/configs/$DEFCONFIG ]; then
 		warn "configs/$DEFCONFIG not found ! Copying from buildroot..."
 		mkdir -p boards/$BOARD/fs-overlay
@@ -141,6 +141,9 @@ if [ ! -f "${CONFIG_DIR}/$DEFCONFIG" ]; then
 	fi
 fi
 
+# This directory is part of the patched config... So it must be there.
+mkdir -p boards/$BOARD/fs-overlay
+
 if [ $init ]; then
 	log "init done!"
 	exit 0
@@ -151,8 +154,8 @@ if   [ $configure ] && [ -e "$OUTPUT" ]; then
 	t="$OUTPUT.$$"
 	mv "$OUTPUT" "$t" 2>/dev/null && { rm -rf "$t" & }
 elif [ $reinstall ]; then
-	find $OUTPUT/build -regex '.*\.stamp_.*\(built\|installed\)' -delete
-	rm -rf $OUTPUT/{final,staging} $OUTPUT/{host,images,target}/*
+	find "$OUTPUT"/build -regex '.*\.stamp_.*\(built\|installed\)' -delete
+	rm -rf "$OUTPUT"/{final,staging} "$OUTPUT"/{host,images,target}/*
 fi
 
 if [ ! -e "$OUTPUT" ]; then
